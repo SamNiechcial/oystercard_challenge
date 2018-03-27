@@ -33,14 +33,21 @@ describe Oystercard do
     describe '#touch_in' do
 
       it 'Should allow the user to touch in at the start of a journey' do
+         a_oystercard.top_up(5)
          a_oystercard.touch_in
          expect(a_oystercard.in_journey).to eq true
+      end
+
+      it 'Should raise an error if attempting to touch in with less than minimum fare' do
+        error_message = "You need £#{Oystercard::MINIMUM_FARE} to begin your journey"
+        expect { a_oystercard.touch_in }.to raise_error error_message
       end
     end
 
     describe '#touch_out' do
 
       it 'Should allow a user to touch out at the end of a journey' do
+        a_oystercard.top_up(5)
         a_oystercard.touch_in
         a_oystercard.touch_out
         expect(a_oystercard.in_journey).to eq false
@@ -49,7 +56,7 @@ describe Oystercard do
 
   subject(:b_oystercard) { described_class.new(5.00) }
 
-    it 'Should create an instance (passed starting balance of 5.00) with 5.00 balance' do
+    it 'Should create an instance (passed starting balance of £5.00) with £5.00 balance' do
       expect(b_oystercard.balance).to eq 5.00
     end
 
