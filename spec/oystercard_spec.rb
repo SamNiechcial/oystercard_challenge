@@ -16,8 +16,15 @@ describe Oystercard do
 
       it 'Should not allow the user to top up the value past the maximum of £90' do
         a_oystercard.top_up(70)
-        expect { a_oystercard.top_up(21) }.to raise_error "Cannot top up past maximum value of £90"
+        error_message = "Cannot top up past maximum value of £#{Oystercard::MAXIMUM_BALANCE}"
+        expect { a_oystercard.top_up(21) }.to raise_error error_message
       end
+    end
+
+    it 'Should allow the system to deduct journey expenses from the card balance' do
+      a_oystercard.top_up(5)
+      a_oystercard.deduct(5)
+      expect(a_oystercard.balance).to eq Oystercard::DEFAULT_BALANCE
     end
 
   subject(:b_oystercard) { described_class.new(5.00) }
