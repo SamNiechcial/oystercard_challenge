@@ -21,10 +21,30 @@ describe Oystercard do
       end
     end
 
-    it 'Should allow the system to deduct journey expenses from the card balance' do
-      a_oystercard.top_up(5)
-      a_oystercard.deduct(5)
-      expect(a_oystercard.balance).to eq Oystercard::DEFAULT_BALANCE
+    describe '#deduct' do
+
+      it 'Should allow the system to deduct journey expenses from the card balance' do
+        a_oystercard.top_up(5)
+        a_oystercard.deduct(5)
+        expect(a_oystercard.balance).to eq Oystercard::DEFAULT_BALANCE
+      end
+    end
+
+    describe '#touch_in' do
+
+      it 'Should allow the user to touch in at the start of a journey' do
+         a_oystercard.touch_in
+         expect(a_oystercard.in_journey).to eq true
+      end
+    end
+
+    describe '#touch_out' do
+
+      it 'Should allow a user to touch out at the end of a journey' do
+        a_oystercard.touch_in
+        a_oystercard.touch_out
+        expect(a_oystercard.in_journey).to eq false
+      end
     end
 
   subject(:b_oystercard) { described_class.new(5.00) }
