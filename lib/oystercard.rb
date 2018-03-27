@@ -1,5 +1,5 @@
+# This class defines an instance of Oystercard and the actions upon it
 class Oystercard
-
   attr_reader :balance
   attr_reader :in_journey
 
@@ -8,27 +8,32 @@ class Oystercard
   MINIMUM_FARE = 1
 
   def initialize(balance = DEFAULT_BALANCE)
+    max_bal_err = "Cannot create card with more than £#{MAXIMUM_BALANCE}"
+    raise max_bal_err if balance > MAXIMUM_BALANCE
     @balance = balance
     @in_journey = false
   end
 
   def top_up(amount)
-    max_balance_error = "Cannot top up past maximum value of £#{MAXIMUM_BALANCE}"
-    raise max_balance_error if (@balance + amount) > MAXIMUM_BALANCE
+    max_bal_error = "Cannot top up past £#{MAXIMUM_BALANCE}"
+    raise max_bal_error if (@balance + amount) > MAXIMUM_BALANCE
     @balance += amount
   end
 
-  def deduct(amount)
-    @balance -= amount
-  end
-
   def touch_in
-    min_fare_error = "You need £#{Oystercard::MINIMUM_FARE} to begin your journey"
-    raise min_fare_error if (@balance < MINIMUM_FARE)
+    min_fare_error = "You need £#{Oystercard::MINIMUM_FARE} to begin journey"
+    raise min_fare_error if @balance < MINIMUM_FARE
     @in_journey = true
   end
 
   def touch_out
+    deduct(MINIMUM_FARE)
     @in_journey = false
   end
+end
+
+private
+
+def deduct(amount)
+  @balance -= amount
 end
