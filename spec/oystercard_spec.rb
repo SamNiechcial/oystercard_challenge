@@ -2,6 +2,7 @@ require 'oystercard'
 
 describe Oystercard do
   subject(:a_oystercard) { described_class.new }
+  let(:station) { double :station }
 
   it 'Should create an instance with a default balance of 0' do
     expect(a_oystercard.balance).to eq 0.00
@@ -23,34 +24,44 @@ describe Oystercard do
   describe '#touch_in' do
     it 'Should raise an error if touching in with less than minimum fare' do
       error_message = "You need £#{Oystercard::MINIMUM_FARE} to begin journey"
-      expect { a_oystercard.touch_in }.to raise_error error_message
+      expect { a_oystercard.touch_in(station) }.to raise_error error_message
     end
   end
+end
 
+describe Oystercard do
   describe 'A group of tests that require a card to have a balance of £5 do'
-  subject(:b_oystercard) { described_class.new(5.00) }
+  subject(:oyster) { described_class.new(5.00) }
+  let(:station) { double :station }
 
   it 'Should create an instance (passed £5.00) with balance of £5.00' do
-    expect(b_oystercard.balance).to eq 5.00
+    expect(oyster.balance).to eq 5.00
   end
 
   describe '#deduct' do
     it 'Should deduct the minimum fare for the journey on touching out' do
-      b_oystercard.touch_in
-      expect { b_oystercard.touch_out }.to change { b_oystercard.balance }.by(-Oystercard::MINIMUM_FARE)
+      oyster.touch_in(station)
+      expect { oyster.touch_out }.to change { oyster.balance }.by(-Oystercard::MINIMUM_FARE)
     end
 
     it 'Should allow the user to touch in at the start of a journey' do
-      b_oystercard.touch_in
-      expect(b_oystercard.in_journey).to eq true
+      oyster.touch_in(station)
+      expect(oyster.in_journey?).to eq true
+    end
+  end
+
+  describe '#touch_in' do
+    it 'Should accept and remember touch in station' do
+      oyster.touch_in(station)
+      expect(oyster.entry_station).to eq station
     end
   end
 
   describe '#touch_out' do
     it 'Should allow a user to touch out at the end of a journey' do
-      b_oystercard.touch_in
-      b_oystercard.touch_out
-      expect(b_oystercard.in_journey).to eq false
+      oyster.touch_in(station)
+      oyster.touch_out
+      expect(oyster.in_journey?).to eq false
     end
   end
 end

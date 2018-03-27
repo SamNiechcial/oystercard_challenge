@@ -1,7 +1,7 @@
 # This class defines an instance of Oystercard and the actions upon it
 class Oystercard
   attr_reader :balance
-  attr_reader :in_journey
+  attr_reader :entry_station
 
   DEFAULT_BALANCE = 0.0
   MAXIMUM_BALANCE = 90.0
@@ -20,15 +20,19 @@ class Oystercard
     @balance += amount
   end
 
-  def touch_in
+  def touch_in(station)
     min_fare_error = "You need £#{Oystercard::MINIMUM_FARE} to begin journey"
     raise min_fare_error if @balance < MINIMUM_FARE
-    @in_journey = true
+    @entry_station = station
+  end
+
+  def in_journey?
+    @entry_station != nil
   end
 
   def touch_out
     deduct(MINIMUM_FARE)
-    @in_journey = false
+    @entry_station = nil
   end
 end
 
