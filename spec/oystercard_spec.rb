@@ -33,6 +33,8 @@ describe Oystercard do
   describe 'A group of tests that require a card to have a balance of £5 do'
   subject(:oyster) { described_class.new(5.00) }
   let(:station) { double :station }
+  let(:entry_station) { double :entry_station }
+  let(:exit_station) { double :exit_station }
 
   it 'Should create an instance (passed £5.00) with balance of £5.00' do
     expect(oyster.balance).to eq 5.00
@@ -41,16 +43,16 @@ describe Oystercard do
   describe '#deduct' do
     it 'Should deduct the minimum fare for the journey on touching out' do
       oyster.touch_in(station)
-      expect { oyster.touch_out }.to change { oyster.balance }.by(-Oystercard::MINIMUM_FARE)
-    end
-
-    it 'Should allow the user to touch in at the start of a journey' do
-      oyster.touch_in(station)
-      expect(oyster.in_journey?).to eq true
+      expect { oyster.touch_out(station) }.to change { oyster.balance }.by(-Oystercard::MINIMUM_FARE)
     end
   end
 
   describe '#touch_in' do
+    it 'Should allow the user to touch in at the start of a journey' do
+      oyster.touch_in(station)
+      expect(oyster.in_journey?).to eq true
+    end
+
     it 'Should accept and remember touch in station' do
       oyster.touch_in(station)
       expect(oyster.entry_station).to eq station
@@ -59,9 +61,20 @@ describe Oystercard do
 
   describe '#touch_out' do
     it 'Should allow a user to touch out at the end of a journey' do
-      oyster.touch_in(station)
-      oyster.touch_out
+      oyster.touch_in(entry_station)
+      oyster.touch_out(exit_station)
       expect(oyster.in_journey?).to eq false
+    end
+
+    it 'Should accept and remember touch out station' do
+      oyster.touch_out(station)
+      expect(oyster.exit_station).to eq station
+    end
+
+    it 'Should record the details of the journey on touching out' do
+      oyster.touch_in(entry_station)
+      oyster.touch_out(exit_station)
+      expect(oyster.journey_history).to include('start' => entry_station, 'end' => exit_station)
     end
   end
 end
