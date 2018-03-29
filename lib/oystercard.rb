@@ -11,40 +11,49 @@ class Oystercard
   MINIMUM_FARE = 1
 
   def initialize(balance = DEFAULT_BALANCE)
-    max_bal_err = "Cannot create card with more than £#{MAXIMUM_BALANCE}"
-    raise max_bal_err if balance > MAXIMUM_BALANCE
+    max_bal_err if balance > MAXIMUM_BALANCE
     @balance = balance
     @journey_history = []
   end
 
   def top_up(amount)
-    max_bal_error = "Cannot top up past £#{MAXIMUM_BALANCE}"
-    raise max_bal_error if @balance + amount > MAXIMUM_BALANCE
+    max_bal_err if @balance + amount > MAXIMUM_BALANCE
     @balance += amount
   end
 
   def touch_in(entry_station, current_journey = Journey.new(entry_station))
-    min_fare_error = "You need £#{Oystercard::MINIMUM_FARE} to begin journey"
-    raise min_fare_error if @balance < MINIMUM_FARE
+    min_fare_error if balance_too_low
     @current_journey = current_journey
   end
 
-  def in_journey?
-    @entry_station != nil
-  end
-
   def touch_out(station)
-    @current_journey.journey["end"] = station
+    @current_journey.exit_station(station)
     @journey_history << @current_journey
-    @entry_station = nil
     deduct(MINIMUM_FARE)
   end
-end
 
-private
+  private
 
-def deduct(amount)
-  @balance -= amount
+  # Error messages
+
+  def max_bal_err
+    raise "Cannot add more value than £#{MAXIMUM_BALANCE}"
+  end
+
+  def min_fare_error
+    raise "You need £#{MINIMUM_FARE} to begin journey"
+  end
+
+  # Checkers
+
+  def balance_too_low
+    @balance < MINIMUM_FARE
+  end
+
+  def deduct(amount)
+    @balance -= amount
+  end
+
 end
 
 # [1] pry(main)> require './lib/oystercard.rb'
